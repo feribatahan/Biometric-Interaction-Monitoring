@@ -10,16 +10,23 @@
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
   <style>
-    :root{--bg:#07111f;--panel:#101d31;--panel2:#15243a;--text:#f3f7ff;--muted:#91a4bf;--line:#263954;--cyan:#30c7d9;--blue:#4d8dff;--green:#3ddc97;--red:#ff647c;--amber:#ffbe55;--purple:#a982ff}
-    *{box-sizing:border-box} body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:radial-gradient(circle at top right,#15325a 0,#07111f 42%);color:var(--text);min-height:100vh}
+    :root{--bg:#f4f8fc;--panel:#ffffff;--panel2:#f8fbff;--text:#17324d;--muted:#667b90;--line:#dbe5ef;--cyan:#0aa6b8;--blue:#3478f6;--green:#20b879;--red:#ef5b70;--amber:#f2ad32;--purple:#8b6ee8}
+    *{box-sizing:border-box} body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:linear-gradient(135deg,#f8fbff 0%,#edf5fb 55%,#f7fbfd 100%);color:var(--text);min-height:100vh}
     .wrap{max-width:1500px;margin:auto;padding:24px}.header{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:20px}.eyebrow{color:var(--cyan);font-weight:800;letter-spacing:.13em;font-size:12px}.title{font-size:clamp(25px,4vw,42px);margin:6px 0 5px}.subtitle,.meta{color:var(--muted)}
-    .actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end}.export-group{display:flex;gap:8px;flex-wrap:wrap}.btn,.file-label{border:1px solid var(--line);background:rgba(16,29,49,.88);color:#fff;padding:11px 14px;border-radius:12px;cursor:pointer;font-weight:700}.btn:hover,.file-label:hover{border-color:var(--cyan)} input[type=file]{display:none}
-    .notice{padding:11px 14px;border-radius:12px;background:#11283c;border:1px solid #22516d;color:#bfeeff;margin-bottom:16px;font-size:13px}.error{background:#3b1720;border-color:#783143;color:#ffd6dd}
-    .filters{display:grid;grid-template-columns:repeat(5,minmax(150px,1fr));gap:10px;background:rgba(16,29,49,.8);border:1px solid var(--line);padding:14px;border-radius:16px;margin-bottom:16px}.filters select,.filters input{width:100%;background:#0a1728;color:#fff;border:1px solid var(--line);border-radius:10px;padding:10px}.filters label{font-size:11px;color:var(--muted);display:block;margin-bottom:6px;font-weight:700}
-    .kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:16px}.card,.panel{background:linear-gradient(145deg,rgba(21,36,58,.95),rgba(11,24,41,.95));border:1px solid var(--line);border-radius:17px;box-shadow:0 16px 34px rgba(0,0,0,.18)}.card{padding:17px}.card .label{font-size:12px;color:var(--muted);font-weight:700}.card .value{font-size:31px;font-weight:850;margin:7px 0 3px}.card .hint{font-size:11px;color:var(--muted)}
-    .grid{display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:14px;margin-bottom:14px}.panel{padding:17px;min-width:0}.panel h3{font-size:15px;margin:0 0 12px}.chartbox{height:285px}.wide{grid-column:span 2}.table-panel{padding:0;overflow:hidden}.table-head{display:flex;justify-content:space-between;align-items:center;padding:16px 17px;border-bottom:1px solid var(--line)}.table-wrap{overflow:auto;max-height:520px}table{width:100%;border-collapse:collapse;font-size:12px;min-width:1250px}th{position:sticky;top:0;background:#13243a;z-index:1;text-align:left;color:#bfd0e5;padding:11px;border-bottom:1px solid var(--line)}td{padding:10px 11px;border-bottom:1px solid #1e3048;vertical-align:top;max-width:300px}.pill{display:inline-block;padding:4px 8px;border-radius:999px;font-weight:800;font-size:10px}.valid{background:rgba(61,220,151,.15);color:#69ecb2}.invalid{background:rgba(255,100,124,.16);color:#ff8799}.footer{text-align:center;color:#6f829e;font-size:11px;padding:20px}.exporting{opacity:.65;pointer-events:none}.export-note{font-size:11px;color:var(--cyan);width:100%;text-align:right;min-height:14px}.capture-mode{background:#07111f!important}.capture-mode .actions,.capture-mode #notice,.capture-mode .table-panel,.capture-mode .footer{display:none!important}.capture-mode .header{margin-bottom:14px}.capture-mode .filters{margin-bottom:14px}.capture-mode .wrap{max-width:1500px}
-    @media(max-width:1100px){.kpis{grid-template-columns:repeat(3,1fr)}.grid{grid-template-columns:1fr 1fr}.wide{grid-column:span 2}.filters{grid-template-columns:repeat(3,1fr)}}
-    @media(max-width:700px){.wrap{padding:14px}.header{display:block}.actions{justify-content:flex-start;margin-top:14px}.kpis,.grid,.filters{grid-template-columns:1fr 1fr}.wide{grid-column:span 2}.chartbox{height:245px}}
+    .actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end}.export-group{display:flex;gap:8px;flex-wrap:wrap}.btn,.file-label{border:1px solid var(--line);background:#fff;color:var(--text);box-shadow:0 5px 14px rgba(35,72,108,.08);padding:11px 14px;border-radius:12px;cursor:pointer;font-weight:700}.btn:hover,.file-label:hover{border-color:var(--cyan)} input[type=file]{display:none}
+    .notice{padding:11px 14px;border-radius:12px;background:#eaf8fb;border:1px solid #b8e5eb;color:#176073;margin-bottom:16px;font-size:13px}.error{background:#fff0f2;border-color:#f1bac3;color:#a32d41}
+    .filters{display:grid;grid-template-columns:repeat(5,minmax(150px,1fr));gap:10px;background:rgba(255,255,255,.92);box-shadow:0 8px 24px rgba(35,72,108,.07);border:1px solid var(--line);padding:14px;border-radius:16px;margin-bottom:16px}.filters select,.filters input{width:100%;background:#fff;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px}.filters label{font-size:11px;color:var(--muted);display:block;margin-bottom:6px;font-weight:700}
+    .kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:16px}.card,.panel{border:1px solid var(--line);border-radius:17px;box-shadow:0 12px 30px rgba(35,72,108,.09);position:relative;overflow:hidden}.card{padding:17px;background:#fff}.card::before{content:'';position:absolute;left:0;right:0;top:0;height:5px}.card .label{font-size:12px;color:var(--muted);font-weight:800}.card .value{font-size:31px;font-weight:850;margin:7px 0 3px}.card .hint{font-size:11px;color:var(--muted)}
+    .card:nth-child(1){background:linear-gradient(145deg,#ffffff 30%,#eaf4ff)}.card:nth-child(1)::before{background:linear-gradient(90deg,#3478f6,#72a8ff)}.card:nth-child(1) .value{color:#245fcb}
+    .card:nth-child(2){background:linear-gradient(145deg,#ffffff 30%,#e9fbf4)}.card:nth-child(2)::before{background:linear-gradient(90deg,#20b879,#69d8ad)}.card:nth-child(2) .value{color:#14845a}
+    .card:nth-child(3){background:linear-gradient(145deg,#ffffff 30%,#fff0f3)}.card:nth-child(3)::before{background:linear-gradient(90deg,#ef5b70,#ff91a1)}.card:nth-child(3) .value{color:#c53f54}
+    .card:nth-child(4){background:linear-gradient(145deg,#ffffff 30%,#fff7e6)}.card:nth-child(4)::before{background:linear-gradient(90deg,#f2ad32,#ffd276)}.card:nth-child(4) .value{color:#b9780a}
+    .card:nth-child(5){background:linear-gradient(145deg,#ffffff 30%,#f1edff)}.card:nth-child(5)::before{background:linear-gradient(90deg,#8b6ee8,#b8a5ff)}.card:nth-child(5) .value{color:#6547c7}
+    .card:nth-child(6){background:linear-gradient(145deg,#ffffff 30%,#e9f9fb)}.card:nth-child(6)::before{background:linear-gradient(90deg,#0aa6b8,#69d2dd)}.card:nth-child(6) .value{color:#087e8b}
+    .grid{display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:14px;margin-bottom:14px}.panel{padding:17px;min-width:0;background:linear-gradient(145deg,#ffffff,#f8fbff)}.grid .panel:nth-child(1){background:linear-gradient(150deg,#ffffff 35%,#eef8f4);border-color:#cfe9dd}.grid .panel:nth-child(2){background:linear-gradient(150deg,#ffffff 35%,#eef5ff);border-color:#cfdef5}.grid .panel:nth-child(3){background:linear-gradient(150deg,#ffffff 35%,#f3efff);border-color:#ddd3f7}.grid .panel:nth-child(4){background:linear-gradient(150deg,#ffffff 35%,#edf9fb);border-color:#ccebee}.grid .panel:nth-child(5){background:linear-gradient(150deg,#ffffff 35%,#fff4f1);border-color:#f1d8d1}.panel h3{font-size:15px;margin:0 0 12px;color:#21415f}.chartbox{height:285px}.wide{grid-column:span 2}.table-panel{padding:0;overflow:hidden;background:linear-gradient(145deg,#ffffff,#f7fbff)}.table-head{display:flex;justify-content:space-between;align-items:center;padding:16px 17px;border-bottom:1px solid var(--line);background:linear-gradient(90deg,#eef6ff,#f8fbff)}.table-wrap{overflow:auto;max-height:520px}table{width:100%;border-collapse:collapse;font-size:12px;min-width:1250px}th{position:sticky;top:0;background:#eef5fb;z-index:1;text-align:left;color:#526b82;padding:11px;border-bottom:1px solid var(--line)}td{padding:10px 11px;border-bottom:1px solid #e7eef5;vertical-align:top;max-width:300px}.pill{display:inline-block;padding:4px 8px;border-radius:999px;font-weight:800;font-size:10px}.valid{background:rgba(61,220,151,.15);color:#16865a}.invalid{background:rgba(255,100,124,.16);color:#c43e55}.footer{text-align:center;color:#71869a;font-size:11px;padding:20px}.exporting{opacity:.65;pointer-events:none}.export-note{font-size:11px;color:#197f8c;width:100%;text-align:right;min-height:14px}.capture-mode{background:#ffffff!important}.capture-mode .actions,.capture-mode #notice,.capture-mode .table-panel,.capture-mode .footer{display:none!important}.capture-mode .header{margin-bottom:14px}.capture-mode .filters{margin-bottom:14px}.capture-mode .wrap{max-width:1500px;background:#ffffff}.capture-mode .card,.capture-mode .panel,.capture-mode .filters{box-shadow:none}
+    .executive-strip{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:14px;margin-bottom:16px}.hero-rate{border-radius:20px;padding:20px;background:linear-gradient(135deg,#0f6fce,#18a9c3);color:#fff;box-shadow:0 14px 32px rgba(15,111,206,.22);display:grid;grid-template-columns:1fr auto;align-items:center;gap:18px}.hero-rate .small{font-size:12px;font-weight:800;letter-spacing:.08em;opacity:.85}.hero-rate .big{font-size:48px;font-weight:900;line-height:1;margin:8px 0}.hero-rate .sub{font-size:12px;opacity:.9}.status-orb{width:94px;height:94px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.18);border:8px solid rgba(255,255,255,.35);font-weight:900;text-align:center}.exec-box{background:#fff;border:1px solid var(--line);border-radius:20px;padding:17px;box-shadow:0 12px 28px rgba(35,72,108,.09)}.exec-box h3{margin:0 0 12px;font-size:14px}.ranking,.insights{display:grid;gap:9px}.rank-row,.insight-row{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;padding:9px 10px;border-radius:11px;background:#f6f9fc;font-size:12px}.rank-name{font-weight:800}.rank-value{font-weight:900}.dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:7px}.rag-green{color:#11825a}.rag-amber{color:#a76b00}.rag-red{color:#bf354d}.target-badge{display:inline-flex;gap:6px;align-items:center;padding:5px 9px;border-radius:999px;background:rgba(255,255,255,.18);font-size:11px;font-weight:800}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}.panel-head h3{margin:0}.panel-note{font-size:10px;color:var(--muted);font-weight:700}.card .delta{position:absolute;right:14px;top:14px;font-size:10px;font-weight:900;padding:4px 7px;border-radius:999px;background:rgba(255,255,255,.72)}.capture-mode .executive-strip{break-inside:avoid}.capture-mode .hero-rate,.capture-mode .exec-box{box-shadow:none}
+    @media(max-width:1100px){.executive-strip{grid-template-columns:1fr 1fr}.hero-rate{grid-column:span 2}.kpis{grid-template-columns:repeat(3,1fr)}.grid{grid-template-columns:1fr 1fr}.wide{grid-column:span 2}.filters{grid-template-columns:repeat(3,1fr)}}
+    @media(max-width:700px){.executive-strip{grid-template-columns:1fr}.hero-rate{grid-column:auto}.wrap{padding:14px}.header{display:block}.actions{justify-content:flex-start;margin-top:14px}.kpis,.grid,.filters{grid-template-columns:1fr 1fr}.wide{grid-column:span 2}.chartbox{height:245px}}
   </style>
 </head>
 <body>
@@ -36,6 +43,11 @@
     <div><label>HASIL QA</label><select id="qaFilter"><option value="">Valid & Invalid</option><option>Valid</option><option>Invalid</option></select></div>
     <div><label>CARI AGENT / CASE / ISSUE</label><input id="searchFilter" placeholder="Ketik kata kunci…" /></div>
   </div>
+  <section class="executive-strip">
+    <div class="hero-rate"><div><div class="small">OVERALL VALIDATION RATE</div><div class="big" id="heroRate">0%</div><div class="sub"><span class="target-badge">Target <b id="targetRate">98.0%</b></span> &nbsp; Gap <b id="rateGap">0.0%</b></div></div><div class="status-orb" id="overallStatus">NO<br>DATA</div></div>
+    <div class="exec-box"><h3>🏆 Brand Ranking</h3><div class="ranking" id="brandRanking"><div class="rank-row">Menunggu data…</div></div></div>
+    <div class="exec-box"><h3>💡 Executive Insight</h3><div class="insights" id="executiveInsights"><div class="insight-row">Menunggu data…</div></div></div>
+  </section>
   <section class="kpis">
     <div class="card"><div class="label">TOTAL EVALUASI</div><div class="value" id="kTotal">0</div><div class="hint">Case pada filter aktif</div></div>
     <div class="card"><div class="label">VALID</div><div class="value" id="kValid">0</div><div class="hint">Handling sesuai</div></div>
@@ -46,7 +58,7 @@
   </section>
   <section class="grid">
     <div class="panel"><h3>Valid vs Invalid</h3><div class="chartbox"><canvas id="statusChart"></canvas></div></div>
-    <div class="panel"><h3>Performance per Brand</h3><div class="chartbox"><canvas id="brandChart"></canvas></div></div>
+    <div class="panel"><div class="panel-head"><h3>Performance per Brand</h3><span class="panel-note">Rate (%) • target 98%</span></div><div class="chartbox"><canvas id="brandChart"></canvas></div></div>
     <div class="panel"><h3>Volume per Channel</h3><div class="chartbox"><canvas id="channelChart"></canvas></div></div>
     <div class="panel wide"><h3>Trend Evaluasi Harian</h3><div class="chartbox"><canvas id="trendChart"></canvas></div></div>
     <div class="panel"><h3>Top Invalid Remark</h3><div class="chartbox"><canvas id="remarkChart"></canvas></div></div>
@@ -57,6 +69,7 @@
 <script>
 Chart.register(ChartDataLabels);
 const DEFAULT_FILE='QA Biometric Form Validation Result.xlsx';
+const TARGET_RATE=98;
 const wanted=['Tanggal Interaksi','Tanggal Evaluasi','MSISDN','Case Number','Nama Agent','Channel','Category (Info/Complaint)','Issue Desc','Summary Case','Solusi Agent','QA Cek ( Valid/Invalid )','Remark (Invalid)','Brand'];
 let rows=[], charts={};
 const $=id=>document.getElementById(id);
@@ -86,14 +99,37 @@ function fieldDisplay(id,v){return id==='dateFilter'?fmtDate(v):v}
 function setupFilters(){fillSelect('dateFilter',unique('Tanggal Evaluasi'));fillSelect('brandFilter',unique('Brand'));fillSelect('channelFilter',unique('Channel'));}
 function filtered(){const q=$('searchFilter').value.toLowerCase();return rows.filter(r=>(!$('dateFilter').value||keyDate(r['Tanggal Evaluasi'])===$('dateFilter').value)&&(!$('brandFilter').value||clean(r.Brand)===$('brandFilter').value)&&(!$('channelFilter').value||clean(r.Channel)===$('channelFilter').value)&&(!$('qaFilter').value||normQA(r['QA Cek ( Valid/Invalid )'])===$('qaFilter').value)&&(!q||[r['Nama Agent'],r['Case Number'],r['Issue Desc'],r['Summary Case'],r['Remark (Invalid)']].join(' ').toLowerCase().includes(q)))}
 function group(data,field,qa){const o={};data.forEach(r=>{const k=field==='Tanggal Evaluasi'?keyDate(r[field]):clean(r[field])||'(Kosong)';if(!qa||normQA(r['QA Cek ( Valid/Invalid )'])===qa)o[k]=(o[k]||0)+1});return o}
-function render(){const d=filtered(),valid=d.filter(r=>normQA(r['QA Cek ( Valid/Invalid )'])==='Valid').length,invalid=d.filter(r=>normQA(r['QA Cek ( Valid/Invalid )'])==='Invalid').length;
- $('kTotal').textContent=d.length;$('kValid').textContent=valid;$('kInvalid').textContent=invalid;$('kRate').textContent=d.length?`${(valid/d.length*100).toFixed(1)}%`:'0%';$('kAgents').textContent=new Set(d.map(r=>clean(r['Nama Agent'])).filter(Boolean)).size;$('kChannels').textContent=new Set(d.map(r=>clean(r.Channel)).filter(Boolean)).size;
- draw('statusChart','doughnut',['Valid','Invalid'],[valid,invalid],['#3ddc97','#ff647c']);
- stacked('brandChart',group(d,'Brand','Valid'),group(d,'Brand','Invalid'));
+function render(){
+ const d=filtered(),valid=d.filter(r=>normQA(r['QA Cek ( Valid/Invalid )'])==='Valid').length,invalid=d.filter(r=>normQA(r['QA Cek ( Valid/Invalid )'])==='Invalid').length;
+ const rate=d.length?valid/d.length*100:0;
+ $('kTotal').textContent=d.length;$('kValid').textContent=valid;$('kInvalid').textContent=invalid;$('kRate').textContent=`${rate.toFixed(1)}%`;$('kAgents').textContent=new Set(d.map(r=>clean(r['Nama Agent'])).filter(Boolean)).size;$('kChannels').textContent=new Set(d.map(r=>clean(r.Channel)).filter(Boolean)).size;
+ renderExecutive(d,rate,invalid);
+ draw('statusChart','doughnut',['Valid','Invalid'],[valid,invalid],['#20b879','#ef5b70']);
+ brandPerformance('brandChart',d);
  const ch=Object.entries(group(d,'Channel')).sort((a,b)=>b[1]-a[1]);draw('channelChart','bar',ch.map(x=>x[0]),ch.map(x=>x[1]),'#4d8dff',true);
  const dates=[...new Set(d.map(r=>keyDate(r['Tanggal Evaluasi'])).filter(Boolean))].sort();const vg=group(d,'Tanggal Evaluasi','Valid'),ig=group(d,'Tanggal Evaluasi','Invalid');lineChart(dates,vg,ig);
- const remarks=Object.entries(group(d.filter(r=>normQA(r['QA Cek ( Valid/Invalid )'])==='Invalid'),'Remark (Invalid)')).sort((a,b)=>b[1]-a[1]).slice(0,8);draw('remarkChart','bar',remarks.map(x=>shorten(x[0],44)),remarks.map(x=>x[1]),'#a982ff',true,'y'); renderTable(d);
+ const remarks=Object.entries(group(d.filter(r=>normQA(r['QA Cek ( Valid/Invalid )'])==='Invalid'),'Remark (Invalid)')).sort((a,b)=>b[1]-a[1]).slice(0,8);draw('remarkChart','bar',remarks.map(x=>shorten(x[0],44)),remarks.map(x=>x[1]),'#8b6ee8',true); renderTable(d);
 }
+function rag(rate){return rate>=TARGET_RATE?'green':rate>=95?'amber':'red'}
+function renderExecutive(d,rate,invalid){
+ $('heroRate').textContent=`${rate.toFixed(1)}%`;$('targetRate').textContent=`${TARGET_RATE.toFixed(1)}%`;
+ const gap=rate-TARGET_RATE;$('rateGap').textContent=`${gap>=0?'+':''}${gap.toFixed(1)}%`;
+ const status=rag(rate),orb=$('overallStatus');orb.innerHTML=status==='green'?'ON<br>TRACK':status==='amber'?'NEED<br>WATCH':'ACTION<br>REQUIRED';orb.style.background=status==='green'?'rgba(39,211,143,.28)':status==='amber'?'rgba(255,193,74,.30)':'rgba(255,92,116,.30)';
+ const brands=[...new Set(d.map(r=>clean(r.Brand)||'(Kosong)'))].map(name=>{const x=d.filter(r=>(clean(r.Brand)||'(Kosong)')===name),v=x.filter(r=>normQA(r['QA Cek ( Valid/Invalid )'])==='Valid').length;return {name,total:x.length,valid:v,rate:x.length?v/x.length*100:0}}).sort((a,b)=>b.rate-a.rate);
+ $('brandRanking').innerHTML=brands.length?brands.slice(0,5).map((b,i)=>`<div class="rank-row"><span><b>${i+1}.</b> <span class="rank-name">${escapeHtml(b.name)}</span><br><span style="color:var(--muted)">${b.valid}/${b.total} valid</span></span><span class="rank-value rag-${rag(b.rate)}">${b.rate.toFixed(1)}%</span></div>`).join(''):'<div class="rank-row">Tidak ada data</div>';
+ const invalidRows=d.filter(r=>normQA(r['QA Cek ( Valid/Invalid )'])==='Invalid');
+ const channelBad=Object.entries(group(invalidRows,'Channel')).sort((a,b)=>b[1]-a[1])[0];
+ const remarkBad=Object.entries(group(invalidRows,'Remark (Invalid)')).sort((a,b)=>b[1]-a[1])[0];
+ const bottom=brands.at(-1);
+ const insights=[];
+ insights.push(`<div class="insight-row"><span>${rate>=TARGET_RATE?'✅':'⚠️'} Overall rate <b>${rate.toFixed(1)}%</b>, ${Math.abs(gap).toFixed(1)} pt ${gap>=0?'di atas':'di bawah'} target.</span></div>`);
+ if(bottom) insights.push(`<div class="insight-row"><span>📉 Brand terendah: <b>${escapeHtml(bottom.name)}</b> (${bottom.rate.toFixed(1)}%).</span></div>`);
+ if(channelBad) insights.push(`<div class="insight-row"><span>🔎 Invalid terbanyak dari channel <b>${escapeHtml(channelBad[0])}</b>: ${channelBad[1]} case.</span></div>`);
+ if(remarkBad) insights.push(`<div class="insight-row"><span>🎯 Fokus RCA: <b>${escapeHtml(shorten(remarkBad[0],36))}</b> (${remarkBad[1]} case).</span></div>`);
+ if(!invalid) insights.push('<div class="insight-row"><span>🌟 Tidak ada invalid pada filter aktif.</span></div>');
+ $('executiveInsights').innerHTML=insights.join('');
+}
+
 function labelFormatter(value,ctx){
  const type=ctx.chart.config.type;
  if(type==='doughnut'){
@@ -103,31 +139,33 @@ function labelFormatter(value,ctx){
  }
  return Number(value)>0?value:'';
 }
-function baseOptions(horizontal=false){return {responsive:true,maintainAspectRatio:false,indexAxis:horizontal?'y':'x',layout:{padding:{top:20,right:18,left:8,bottom:6}},plugins:{legend:{labels:{color:'#cbd8ea'}},tooltip:{callbacks:{title:i=>i[0]?.label||''}},datalabels:{color:'#f4f8ff',font:{weight:'bold',size:11},anchor:'end',align:'end',offset:3,clamp:true,formatter:labelFormatter}},scales:{x:{ticks:{color:'#91a4bf'},grid:{color:'rgba(145,164,191,.09)'}},y:{ticks:{color:'#91a4bf'},grid:{color:'rgba(145,164,191,.09)'},beginAtZero:true}}}}
+function baseOptions(horizontal=false){return {responsive:true,maintainAspectRatio:false,indexAxis:horizontal?'y':'x',layout:{padding:{top:20,right:18,left:8,bottom:6}},plugins:{legend:{labels:{color:'#526b82'}},tooltip:{callbacks:{title:i=>i[0]?.label||''}},datalabels:{color:'#17324d',font:{weight:'bold',size:11},anchor:'end',align:'end',offset:3,clamp:true,formatter:labelFormatter}},scales:{x:{ticks:{color:'#667b90'},grid:{color:'rgba(102,123,144,.12)'}},y:{ticks:{color:'#667b90'},grid:{color:'rgba(102,123,144,.12)'},beginAtZero:true}}}}
 function draw(id,type,labels,data,color,horizontal=false){
  charts[id]?.destroy();
  const opts=baseOptions(horizontal);
  if(type==='doughnut'){
    opts.layout={padding:14};
-   opts.plugins.legend={display:true,position:'bottom',labels:{color:'#cbd8ea'}};
+   opts.plugins.legend={display:true,position:'bottom',labels:{color:'#526b82'}};
    opts.plugins.datalabels={color:'#fff',font:{weight:'bold',size:13},anchor:'center',align:'center',textAlign:'center',formatter:labelFormatter};
  }else{
    opts.plugins.legend={display:false};
  }
  charts[id]=new Chart($(id),{type,data:{labels,datasets:[{data,backgroundColor:color,borderWidth:type==='doughnut'?0:1,borderColor:'rgba(255,255,255,.1)',borderRadius:7}]},options:opts})
 }
-function stacked(id,a,b){
- const labels=[...new Set([...Object.keys(a),...Object.keys(b)])];
+function brandPerformance(id,d){
+ const labels=[...new Set(d.map(r=>clean(r.Brand)||'(Kosong)'))];
+ const stats=labels.map(name=>{const x=d.filter(r=>(clean(r.Brand)||'(Kosong)')===name),v=x.filter(r=>normQA(r['QA Cek ( Valid/Invalid )'])==='Valid').length;return {name,total:x.length,valid:v,rate:x.length?v/x.length*100:0}}).sort((a,b)=>b.rate-a.rate);
  charts[id]?.destroy();
- const opts=baseOptions();
- opts.scales={x:{stacked:true,ticks:{color:'#91a4bf'},grid:{display:false}},y:{stacked:true,ticks:{color:'#91a4bf'},grid:{color:'rgba(145,164,191,.09)'},beginAtZero:true}};
- opts.plugins.datalabels={color:'#07111f',font:{weight:'bold',size:10},anchor:'center',align:'center',formatter:v=>Number(v)>0?v:''};
- charts[id]=new Chart($(id),{type:'bar',data:{labels,datasets:[{label:'Valid',data:labels.map(k=>a[k]||0),backgroundColor:'#3ddc97',borderRadius:7},{label:'Invalid',data:labels.map(k=>b[k]||0),backgroundColor:'#ff647c',borderRadius:7}]},options:opts})
+ const targetPlugin={id:'targetLine',afterDraw(chart){const {ctx,scales:{x},chartArea:{top,bottom}}=chart;const px=x.getPixelForValue(TARGET_RATE);ctx.save();ctx.setLineDash([6,5]);ctx.strokeStyle='#ef5b70';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(px,top);ctx.lineTo(px,bottom);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#bf354d';ctx.font='700 10px Inter,Segoe UI,Arial';ctx.fillText(`Target ${TARGET_RATE}%`,Math.min(px+5,chart.width-75),top+11);ctx.restore();}};
+ const colors=stats.map(s=>s.rate>=TARGET_RATE?'#20b879':s.rate>=95?'#f2ad32':'#ef5b70');
+ const opts=baseOptions(true);opts.layout={padding:{top:20,right:38,left:8,bottom:6}};opts.scales={x:{min:0,max:100,ticks:{color:'#667b90',callback:v=>v+'%'},grid:{color:'rgba(102,123,144,.12)'}},y:{ticks:{color:'#17324d',font:{weight:'700'}},grid:{display:false}}};opts.plugins.legend={display:false};opts.plugins.datalabels={color:'#17324d',anchor:'end',align:'right',offset:5,clamp:true,font:{weight:'900',size:12},formatter:(v,ctx)=>`${v.toFixed(1)}%  (${stats[ctx.dataIndex].valid}/${stats[ctx.dataIndex].total})`};
+ charts[id]=new Chart($(id),{type:'bar',data:{labels:stats.map(s=>s.name),datasets:[{data:stats.map(s=>s.rate),backgroundColor:colors,borderRadius:9,barThickness:28}]},options:opts,plugins:[targetPlugin]});
 }
+
 function lineChart(labels,a,b){
  charts.trendChart?.destroy();
  const opts=baseOptions();
- opts.plugins.datalabels={color:'#f4f8ff',font:{weight:'bold',size:10},anchor:'end',align:'top',offset:4,clamp:true,formatter:v=>Number(v)>0?v:''};
+ opts.plugins.datalabels={color:'#17324d',font:{weight:'bold',size:10},anchor:'end',align:'top',offset:4,clamp:true,formatter:v=>Number(v)>0?v:''};
  charts.trendChart=new Chart($('trendChart'),{type:'line',data:{labels:labels.map(fmtDate),datasets:[{label:'Valid',data:labels.map(k=>a[k]||0),borderColor:'#3ddc97',backgroundColor:'rgba(61,220,151,.15)',pointBackgroundColor:'#3ddc97',pointRadius:4,fill:true,tension:.35},{label:'Invalid',data:labels.map(k=>b[k]||0),borderColor:'#ff647c',backgroundColor:'rgba(255,100,124,.10)',pointBackgroundColor:'#ff647c',pointRadius:4,fill:true,tension:.35}]},options:opts})
 }
 async function captureDashboard(){
@@ -135,7 +173,7 @@ async function captureDashboard(){
  document.body.classList.add('capture-mode');
  await new Promise(r=>setTimeout(r,180));
  try{
-   return await html2canvas(document.querySelector('.wrap'),{backgroundColor:'#07111f',scale:2,useCORS:true,logging:false,windowWidth:1500,scrollX:0,scrollY:0});
+   return await html2canvas(document.querySelector('.wrap'),{backgroundColor:'#ffffff',scale:2,useCORS:true,logging:false,windowWidth:1500,scrollX:0,scrollY:0});
  }finally{
    document.body.classList.remove('capture-mode');
  }
@@ -160,7 +198,7 @@ async function savePpt(){
    const pptx=new PptxGenJS();
    pptx.layout='LAYOUT_WIDE';
    pptx.author='QA Biometric Dashboard';pptx.subject='QA Biometric Validation Report';pptx.title='QA Biometric Form Validation Result';pptx.company='PT VADS Indonesia';pptx.lang='id-ID';
-   const slide=pptx.addSlide();slide.background={color:'07111F'};
+   const slide=pptx.addSlide();slide.background={color:'FFFFFF'};
    const img=canvas.toDataURL('image/png',1);
    const sw=13.333,sh=7.5,ratio=canvas.width/canvas.height;
    let w=sw,h=w/ratio;if(h>sh){h=sh;w=h*ratio}

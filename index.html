@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QA Biometric Validation Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+  <style>
+    :root{--bg:#07111f;--panel:#101d31;--panel2:#15243a;--text:#f3f7ff;--muted:#91a4bf;--line:#263954;--cyan:#30c7d9;--blue:#4d8dff;--green:#3ddc97;--red:#ff647c;--amber:#ffbe55;--purple:#a982ff}
+    *{box-sizing:border-box} body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:radial-gradient(circle at top right,#15325a 0,#07111f 42%);color:var(--text);min-height:100vh}
+    .wrap{max-width:1500px;margin:auto;padding:24px}.header{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:20px}.eyebrow{color:var(--cyan);font-weight:800;letter-spacing:.13em;font-size:12px}.title{font-size:clamp(25px,4vw,42px);margin:6px 0 5px}.subtitle,.meta{color:var(--muted)}
+    .actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end}.export-group{display:flex;gap:8px;flex-wrap:wrap}.btn,.file-label{border:1px solid var(--line);background:rgba(16,29,49,.88);color:#fff;padding:11px 14px;border-radius:12px;cursor:pointer;font-weight:700}.btn:hover,.file-label:hover{border-color:var(--cyan)} input[type=file]{display:none}
+    .notice{padding:11px 14px;border-radius:12px;background:#11283c;border:1px solid #22516d;color:#bfeeff;margin-bottom:16px;font-size:13px}.error{background:#3b1720;border-color:#783143;color:#ffd6dd}
+    .filters{display:grid;grid-template-columns:repeat(5,minmax(150px,1fr));gap:10px;background:rgba(16,29,49,.8);border:1px solid var(--line);padding:14px;border-radius:16px;margin-bottom:16px}.filters select,.filters input{width:100%;background:#0a1728;color:#fff;border:1px solid var(--line);border-radius:10px;padding:10px}.filters label{font-size:11px;color:var(--muted);display:block;margin-bottom:6px;font-weight:700}
+    .kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:16px}.card,.panel{background:linear-gradient(145deg,rgba(21,36,58,.95),rgba(11,24,41,.95));border:1px solid var(--line);border-radius:17px;box-shadow:0 16px 34px rgba(0,0,0,.18)}.card{padding:17px}.card .label{font-size:12px;color:var(--muted);font-weight:700}.card .value{font-size:31px;font-weight:850;margin:7px 0 3px}.card .hint{font-size:11px;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:14px;margin-bottom:14px}.panel{padding:17px;min-width:0}.panel h3{font-size:15px;margin:0 0 12px}.chartbox{height:285px}.wide{grid-column:span 2}.table-panel{padding:0;overflow:hidden}.table-head{display:flex;justify-content:space-between;align-items:center;padding:16px 17px;border-bottom:1px solid var(--line)}.table-wrap{overflow:auto;max-height:520px}table{width:100%;border-collapse:collapse;font-size:12px;min-width:1250px}th{position:sticky;top:0;background:#13243a;z-index:1;text-align:left;color:#bfd0e5;padding:11px;border-bottom:1px solid var(--line)}td{padding:10px 11px;border-bottom:1px solid #1e3048;vertical-align:top;max-width:300px}.pill{display:inline-block;padding:4px 8px;border-radius:999px;font-weight:800;font-size:10px}.valid{background:rgba(61,220,151,.15);color:#69ecb2}.invalid{background:rgba(255,100,124,.16);color:#ff8799}.footer{text-align:center;color:#6f829e;font-size:11px;padding:20px}.exporting{opacity:.65;pointer-events:none}.export-note{font-size:11px;color:var(--cyan);width:100%;text-align:right;min-height:14px}.capture-mode{background:#07111f!important}.capture-mode .actions,.capture-mode #notice,.capture-mode .table-panel,.capture-mode .footer{display:none!important}.capture-mode .header{margin-bottom:14px}.capture-mode .filters{margin-bottom:14px}.capture-mode .wrap{max-width:1500px}
+    @media(max-width:1100px){.kpis{grid-template-columns:repeat(3,1fr)}.grid{grid-template-columns:1fr 1fr}.wide{grid-column:span 2}.filters{grid-template-columns:repeat(3,1fr)}}
+    @media(max-width:700px){.wrap{padding:14px}.header{display:block}.actions{justify-content:flex-start;margin-top:14px}.kpis,.grid,.filters{grid-template-columns:1fr 1fr}.wide{grid-column:span 2}.chartbox{height:245px}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div><div class="eyebrow">QUALITY ASSURANCE • BIOMETRIC</div><h1 class="title">Form Validation Result</h1><div class="subtitle">Monitoring validitas handling agent berdasarkan data pada sheet <b>Rekap</b>.</div><div class="meta" id="meta">Menunggu data…</div></div>
+    <div class="actions" data-html2canvas-ignore="true"><label class="file-label">📂 Pilih / Update Excel<input id="fileInput" type="file" accept=".xlsx,.xls" /></label><button class="btn" id="resetBtn">↺ Reset Filter</button><div class="export-group"><button class="btn" id="saveImageBtn">🖼 Save Image</button><button class="btn" id="savePptBtn">📊 Save to PPT</button></div><div class="export-note" id="exportNote"></div></div>
+  </div>
+  <div id="notice" class="notice" data-html2canvas-ignore="true">Mencoba membaca <b>QA Biometric Form Validation Result.xlsx</b> dari folder yang sama…</div>
+  <div class="filters">
+    <div><label>TANGGAL EVALUASI</label><select id="dateFilter"><option value="">Semua tanggal</option></select></div>
+    <div><label>BRAND</label><select id="brandFilter"><option value="">Semua brand</option></select></div>
+    <div><label>CHANNEL</label><select id="channelFilter"><option value="">Semua channel</option></select></div>
+    <div><label>HASIL QA</label><select id="qaFilter"><option value="">Valid & Invalid</option><option>Valid</option><option>Invalid</option></select></div>
+    <div><label>CARI AGENT / CASE / ISSUE</label><input id="searchFilter" placeholder="Ketik kata kunci…" /></div>
+  </div>
+  <section class="kpis">
+    <div class="card"><div class="label">TOTAL EVALUASI</div><div class="value" id="kTotal">0</div><div class="hint">Case pada filter aktif</div></div>
+    <div class="card"><div class="label">VALID</div><div class="value" id="kValid">0</div><div class="hint">Handling sesuai</div></div>
+    <div class="card"><div class="label">INVALID</div><div class="value" id="kInvalid">0</div><div class="hint">Perlu improvement</div></div>
+    <div class="card"><div class="label">VALIDATION RATE</div><div class="value" id="kRate">0%</div><div class="hint">Valid ÷ total</div></div>
+    <div class="card"><div class="label">AGENT DIEVALUASI</div><div class="value" id="kAgents">0</div><div class="hint">Unique agent</div></div>
+    <div class="card"><div class="label">CHANNEL TERCAKUP</div><div class="value" id="kChannels">0</div><div class="hint">Unique channel</div></div>
+  </section>
+  <section class="grid">
+    <div class="panel"><h3>Valid vs Invalid</h3><div class="chartbox"><canvas id="statusChart"></canvas></div></div>
+    <div class="panel"><h3>Performance per Brand</h3><div class="chartbox"><canvas id="brandChart"></canvas></div></div>
+    <div class="panel"><h3>Volume per Channel</h3><div class="chartbox"><canvas id="channelChart"></canvas></div></div>
+    <div class="panel wide"><h3>Trend Evaluasi Harian</h3><div class="chartbox"><canvas id="trendChart"></canvas></div></div>
+    <div class="panel"><h3>Top Invalid Remark</h3><div class="chartbox"><canvas id="remarkChart"></canvas></div></div>
+  </section>
+  <section class="panel table-panel"><div class="table-head"><h3 style="margin:0">Detail Evaluasi</h3><span class="meta" id="rowCount">0 baris</span></div><div class="table-wrap"><table><thead><tr id="thead"></tr></thead><tbody id="tbody"></tbody></table></div></section>
+  <div class="footer">Dashboard membaca Excel langsung di browser. Data tidak dikirim ke server lain.</div>
+</div>
+<script>
+Chart.register(ChartDataLabels);
+const DEFAULT_FILE='QA Biometric Form Validation Result.xlsx';
+const wanted=['Tanggal Interaksi','Tanggal Evaluasi','MSISDN','Case Number','Nama Agent','Channel','Category (Info/Complaint)','Issue Desc','Summary Case','Solusi Agent','QA Cek ( Valid/Invalid )','Remark (Invalid)','Brand'];
+let rows=[], charts={};
+const $=id=>document.getElementById(id);
+const clean=v=>String(v??'').trim();
+const normQA=v=>{let s=clean(v).toLowerCase();return s==='valid'?'Valid':s==='invalid'?'Invalid':clean(v)};
+function excelDate(v){
+ if(v instanceof Date&&!isNaN(v)) return v;
+ if(typeof v==='number'){const d=XLSX.SSF.parse_date_code(v);return d?new Date(d.y,d.m-1,d.d):null}
+ const d=new Date(v);return isNaN(d)?null:d;
+}
+function fmtDate(v){const d=excelDate(v);return d?d.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'}):clean(v)}
+function keyDate(v){const d=excelDate(v);return d?`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`:clean(v)}
+function parseWorkbook(buf,name){
+ const wb=XLSX.read(buf,{type:'array',cellDates:true});
+ const sheet=wb.Sheets['Rekap']||wb.Sheets[wb.SheetNames[0]];
+ if(!sheet) throw new Error('Sheet Rekap tidak ditemukan.');
+ rows=XLSX.utils.sheet_to_json(sheet,{defval:'',raw:true}).map(r=>{r['QA Cek ( Valid/Invalid )']=normQA(r['QA Cek ( Valid/Invalid )']);return r}).filter(r=>Object.values(r).some(v=>clean(v)));
+ if(!rows.length) throw new Error('Tidak ada data pada sheet Rekap.');
+ setupFilters(); render();
+ $('notice').className='notice'; $('notice').innerHTML=`✅ Data aktif: <b>${name}</b>. Untuk update, ganti file dengan nama yang sama di GitHub atau pilih Excel terbaru.`;
+ $('meta').textContent=`${rows.length} evaluasi • periode ${dateRange(rows)} • diperbarui ${new Date().toLocaleString('id-ID')}`;
+}
+function dateRange(data){const ds=data.map(r=>excelDate(r['Tanggal Evaluasi'])).filter(Boolean).sort((a,b)=>a-b);return ds.length?`${fmtDate(ds[0])} – ${fmtDate(ds.at(-1))}`:'-'}
+function unique(field){return [...new Set(rows.map(r=>clean(field.includes('Tanggal')?keyDate(r[field]):r[field])).filter(Boolean))].sort()}
+function fillSelect(id,vals){const el=$(id),first=el.options[0].outerHTML;el.innerHTML=first+vals.map(v=>`<option value="${escapeHtml(v)}">${fieldDisplay(id,v)}</option>`).join('')}
+function fieldDisplay(id,v){return id==='dateFilter'?fmtDate(v):v}
+function setupFilters(){fillSelect('dateFilter',unique('Tanggal Evaluasi'));fillSelect('brandFilter',unique('Brand'));fillSelect('channelFilter',unique('Channel'));}
+function filtered(){const q=$('searchFilter').value.toLowerCase();return rows.filter(r=>(!$('dateFilter').value||keyDate(r['Tanggal Evaluasi'])===$('dateFilter').value)&&(!$('brandFilter').value||clean(r.Brand)===$('brandFilter').value)&&(!$('channelFilter').value||clean(r.Channel)===$('channelFilter').value)&&(!$('qaFilter').value||normQA(r['QA Cek ( Valid/Invalid )'])===$('qaFilter').value)&&(!q||[r['Nama Agent'],r['Case Number'],r['Issue Desc'],r['Summary Case'],r['Remark (Invalid)']].join(' ').toLowerCase().includes(q)))}
+function group(data,field,qa){const o={};data.forEach(r=>{const k=field==='Tanggal Evaluasi'?keyDate(r[field]):clean(r[field])||'(Kosong)';if(!qa||normQA(r['QA Cek ( Valid/Invalid )'])===qa)o[k]=(o[k]||0)+1});return o}
+function render(){const d=filtered(),valid=d.filter(r=>normQA(r['QA Cek ( Valid/Invalid )'])==='Valid').length,invalid=d.filter(r=>normQA(r['QA Cek ( Valid/Invalid )'])==='Invalid').length;
+ $('kTotal').textContent=d.length;$('kValid').textContent=valid;$('kInvalid').textContent=invalid;$('kRate').textContent=d.length?`${(valid/d.length*100).toFixed(1)}%`:'0%';$('kAgents').textContent=new Set(d.map(r=>clean(r['Nama Agent'])).filter(Boolean)).size;$('kChannels').textContent=new Set(d.map(r=>clean(r.Channel)).filter(Boolean)).size;
+ draw('statusChart','doughnut',['Valid','Invalid'],[valid,invalid],['#3ddc97','#ff647c']);
+ stacked('brandChart',group(d,'Brand','Valid'),group(d,'Brand','Invalid'));
+ const ch=Object.entries(group(d,'Channel')).sort((a,b)=>b[1]-a[1]);draw('channelChart','bar',ch.map(x=>x[0]),ch.map(x=>x[1]),'#4d8dff',true);
+ const dates=[...new Set(d.map(r=>keyDate(r['Tanggal Evaluasi'])).filter(Boolean))].sort();const vg=group(d,'Tanggal Evaluasi','Valid'),ig=group(d,'Tanggal Evaluasi','Invalid');lineChart(dates,vg,ig);
+ const remarks=Object.entries(group(d.filter(r=>normQA(r['QA Cek ( Valid/Invalid )'])==='Invalid'),'Remark (Invalid)')).sort((a,b)=>b[1]-a[1]).slice(0,8);draw('remarkChart','bar',remarks.map(x=>shorten(x[0],44)),remarks.map(x=>x[1]),'#a982ff',true,'y'); renderTable(d);
+}
+function labelFormatter(value,ctx){
+ const type=ctx.chart.config.type;
+ if(type==='doughnut'){
+   const total=ctx.dataset.data.reduce((a,b)=>a+(Number(b)||0),0);
+   const pct=total?((Number(value)||0)/total*100).toFixed(1):'0.0';
+   return `${value}\n(${pct}%)`;
+ }
+ return Number(value)>0?value:'';
+}
+function baseOptions(horizontal=false){return {responsive:true,maintainAspectRatio:false,indexAxis:horizontal?'y':'x',layout:{padding:{top:20,right:18,left:8,bottom:6}},plugins:{legend:{labels:{color:'#cbd8ea'}},tooltip:{callbacks:{title:i=>i[0]?.label||''}},datalabels:{color:'#f4f8ff',font:{weight:'bold',size:11},anchor:'end',align:'end',offset:3,clamp:true,formatter:labelFormatter}},scales:{x:{ticks:{color:'#91a4bf'},grid:{color:'rgba(145,164,191,.09)'}},y:{ticks:{color:'#91a4bf'},grid:{color:'rgba(145,164,191,.09)'},beginAtZero:true}}}}
+function draw(id,type,labels,data,color,horizontal=false){
+ charts[id]?.destroy();
+ const opts=baseOptions(horizontal);
+ if(type==='doughnut'){
+   opts.layout={padding:14};
+   opts.plugins.legend={display:true,position:'bottom',labels:{color:'#cbd8ea'}};
+   opts.plugins.datalabels={color:'#fff',font:{weight:'bold',size:13},anchor:'center',align:'center',textAlign:'center',formatter:labelFormatter};
+ }else{
+   opts.plugins.legend={display:false};
+ }
+ charts[id]=new Chart($(id),{type,data:{labels,datasets:[{data,backgroundColor:color,borderWidth:type==='doughnut'?0:1,borderColor:'rgba(255,255,255,.1)',borderRadius:7}]},options:opts})
+}
+function stacked(id,a,b){
+ const labels=[...new Set([...Object.keys(a),...Object.keys(b)])];
+ charts[id]?.destroy();
+ const opts=baseOptions();
+ opts.scales={x:{stacked:true,ticks:{color:'#91a4bf'},grid:{display:false}},y:{stacked:true,ticks:{color:'#91a4bf'},grid:{color:'rgba(145,164,191,.09)'},beginAtZero:true}};
+ opts.plugins.datalabels={color:'#07111f',font:{weight:'bold',size:10},anchor:'center',align:'center',formatter:v=>Number(v)>0?v:''};
+ charts[id]=new Chart($(id),{type:'bar',data:{labels,datasets:[{label:'Valid',data:labels.map(k=>a[k]||0),backgroundColor:'#3ddc97',borderRadius:7},{label:'Invalid',data:labels.map(k=>b[k]||0),backgroundColor:'#ff647c',borderRadius:7}]},options:opts})
+}
+function lineChart(labels,a,b){
+ charts.trendChart?.destroy();
+ const opts=baseOptions();
+ opts.plugins.datalabels={color:'#f4f8ff',font:{weight:'bold',size:10},anchor:'end',align:'top',offset:4,clamp:true,formatter:v=>Number(v)>0?v:''};
+ charts.trendChart=new Chart($('trendChart'),{type:'line',data:{labels:labels.map(fmtDate),datasets:[{label:'Valid',data:labels.map(k=>a[k]||0),borderColor:'#3ddc97',backgroundColor:'rgba(61,220,151,.15)',pointBackgroundColor:'#3ddc97',pointRadius:4,fill:true,tension:.35},{label:'Invalid',data:labels.map(k=>b[k]||0),borderColor:'#ff647c',backgroundColor:'rgba(255,100,124,.10)',pointBackgroundColor:'#ff647c',pointRadius:4,fill:true,tension:.35}]},options:opts})
+}
+async function captureDashboard(){
+ if(!rows.length) throw new Error('Data dashboard belum tersedia.');
+ document.body.classList.add('capture-mode');
+ await new Promise(r=>setTimeout(r,180));
+ try{
+   return await html2canvas(document.querySelector('.wrap'),{backgroundColor:'#07111f',scale:2,useCORS:true,logging:false,windowWidth:1500,scrollX:0,scrollY:0});
+ }finally{
+   document.body.classList.remove('capture-mode');
+ }
+}
+function exportFilename(ext){
+ const d=new Date();
+ const stamp=`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}_${String(d.getHours()).padStart(2,'0')}${String(d.getMinutes()).padStart(2,'0')}`;
+ return `QA_Biometric_Dashboard_${stamp}.${ext}`;
+}
+async function saveImage(){
+ setExportState(true,'Menyiapkan image…');
+ try{
+   const canvas=await captureDashboard();
+   const a=document.createElement('a');a.download=exportFilename('png');a.href=canvas.toDataURL('image/png',1);a.click();
+   setExportState(false,'Image berhasil disimpan.');
+ }catch(e){setExportState(false,`Gagal: ${e.message}`)}
+}
+async function savePpt(){
+ setExportState(true,'Menyiapkan PowerPoint…');
+ try{
+   const canvas=await captureDashboard();
+   const pptx=new PptxGenJS();
+   pptx.layout='LAYOUT_WIDE';
+   pptx.author='QA Biometric Dashboard';pptx.subject='QA Biometric Validation Report';pptx.title='QA Biometric Form Validation Result';pptx.company='PT VADS Indonesia';pptx.lang='id-ID';
+   const slide=pptx.addSlide();slide.background={color:'07111F'};
+   const img=canvas.toDataURL('image/png',1);
+   const sw=13.333,sh=7.5,ratio=canvas.width/canvas.height;
+   let w=sw,h=w/ratio;if(h>sh){h=sh;w=h*ratio}
+   slide.addImage({data:img,x:(sw-w)/2,y:(sh-h)/2,w,h});
+   await pptx.writeFile({fileName:exportFilename('pptx')});
+   setExportState(false,'PowerPoint berhasil disimpan.');
+ }catch(e){setExportState(false,`Gagal: ${e.message}`)}
+}
+function setExportState(active,msg){
+ $('saveImageBtn').disabled=active;$('savePptBtn').disabled=active;
+ $('saveImageBtn').classList.toggle('exporting',active);$('savePptBtn').classList.toggle('exporting',active);
+ $('exportNote').textContent=msg||'';
+ if(!active&&msg)setTimeout(()=>{if($('exportNote').textContent===msg)$('exportNote').textContent=''},3500);
+}
+function renderTable(data){$('thead').innerHTML=wanted.map(h=>`<th>${escapeHtml(h)}</th>`).join('');$('tbody').innerHTML=data.slice(0,500).map(r=>`<tr>${wanted.map(h=>{let v=h.includes('Tanggal')?fmtDate(r[h]):clean(r[h]);if(h==='QA Cek ( Valid/Invalid )')v=`<span class="pill ${v.toLowerCase()}">${escapeHtml(v)}</span>`;else v=escapeHtml(v);return `<td>${v}</td>`}).join('')}</tr>`).join('');$('rowCount').textContent=`${data.length} baris${data.length>500?' • menampilkan 500 pertama':''}`}
+function shorten(s,n){return s.length>n?s.slice(0,n-1)+'…':s}function escapeHtml(s){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+['dateFilter','brandFilter','channelFilter','qaFilter'].forEach(id=>$(id).addEventListener('change',render));$('searchFilter').addEventListener('input',render);$('resetBtn').onclick=()=>{['dateFilter','brandFilter','channelFilter','qaFilter'].forEach(id=>$(id).value='');$('searchFilter').value='';render()};
+$('saveImageBtn').addEventListener('click',saveImage);$('savePptBtn').addEventListener('click',savePpt);
+$('fileInput').addEventListener('change',async e=>{const f=e.target.files[0];if(f)try{parseWorkbook(await f.arrayBuffer(),f.name)}catch(err){showError(err.message)}});
+function showError(msg){$('notice').className='notice error';$('notice').innerHTML=`⚠️ ${escapeHtml(msg)} Gunakan tombol <b>Pilih / Update Excel</b>.`}
+(async()=>{try{const res=await fetch(DEFAULT_FILE+'?v='+Date.now());if(!res.ok)throw new Error('File Excel otomatis belum dapat dibaca.');parseWorkbook(await res.arrayBuffer(),DEFAULT_FILE)}catch(e){showError('Mode lokal/GitHub belum menemukan Excel di folder yang sama.')}})();
+</script>
+</body>
+</html>

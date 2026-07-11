@@ -126,7 +126,7 @@
 
 <script>
 Chart.register(ChartDataLabels);
-const DEFAULT_FILES=['Daily Checker Ops Both Brand.xlsx','Daily Checker Ops Both Brand (1).xlsx'];
+const DEFAULT_FILES=['Daily Checker Ops Both Brand.xlsx','Daily Checker Ops Both Brand (3).xlsx'];
 const TARGET_RATE=92;
 const COL={
  brand:'Brand',interaction:'Interaction Date',checker:'Checker Date',msisdn:'MSISDN',caseNo:'Case Number',
@@ -157,41 +157,41 @@ function mapHeader(h){
 }
 function normQA(v){const s=clean(v).toLowerCase();return s==='valid'?'Valid':s==='invalid'?'Invalid':clean(v)}
 function normCategory(v){const s=clean(v).toLowerCase();if(s.includes('complaint'))return 'Complaint';if(s.includes('info'))return 'Info';return clean(v)}
+// Tanggal sumber SharePoint menggunakan format mm/dd/yyyy.
+// Untuk laporan ini, angka pertama adalah bulan 07 (Juli).
+// File hasil download dapat menyimpan 07/09 sebagai 9 Juli ATAU 7 September,
+// tergantung locale Excel. Karena itu normalisasi dilakukan secara selektif:
+// - Jika nilai internal sudah bulan Juli, pertahankan.
+// - Jika tanggal internal adalah tanggal 7 pada bulan lain, tukar menjadi hari pada bulan Juli.
+const SOURCE_MONTH=7;
 function excelDate(v){
- // SOURCE DATE CORRECTION
- // The workbook was intended as mm/dd/yyyy, but its internal Excel date values
- // were saved/read with month and day reversed. Therefore, for native Excel
- // Date values and serial numbers we swap the stored month/day back:
- // stored 07-Aug-2026 => intended 08-Jul-2026
- // stored 07-Nov-2026 => intended 11-Jul-2026
+ const normalizeParts=(year,month,day,hour=0,minute=0,second=0)=>{
+   if(month===SOURCE_MONTH){
+     return new Date(year,SOURCE_MONTH-1,day,hour,minute,second);
+   }
+   if(day===SOURCE_MONTH && month>=1 && month<=12){
+     return new Date(year,SOURCE_MONTH-1,month,hour,minute,second);
+   }
+   return new Date(year,month-1,day,hour,minute,second);
+ };
  if(v instanceof Date&&!isNaN(v)){
-   const year=v.getFullYear();
-   const intendedMonth=v.getDate();       // stored day becomes intended month
-   const intendedDay=v.getMonth()+1;      // stored month becomes intended day
-   const d=new Date(year,intendedMonth-1,intendedDay);
-   return d.getFullYear()===year&&d.getMonth()===intendedMonth-1&&d.getDate()===intendedDay?d:null;
+   return normalizeParts(v.getFullYear(),v.getMonth()+1,v.getDate(),v.getHours(),v.getMinutes(),v.getSeconds());
  }
  if(typeof v==='number'){
    const x=XLSX.SSF.parse_date_code(v);
-   if(!x) return null;
-   const intendedMonth=x.d;               // stored day becomes intended month
-   const intendedDay=x.m;                 // stored month becomes intended day
-   const d=new Date(x.y,intendedMonth-1,intendedDay);
-   return d.getFullYear()===x.y&&d.getMonth()===intendedMonth-1&&d.getDate()===intendedDay?d:null;
+   return x?normalizeParts(x.y,x.m,x.d,x.H||0,x.M||0,Math.floor(x.S||0)):null;
  }
- const s=clean(v);
- if(!s) return null;
-
- // Text values are parsed strictly as mm/dd/yyyy.
- let m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:[ T].*)?$/);
+ const str=clean(v);
+ if(!str)return null;
+ // Teks yang berasal dari SharePoint dibaca eksplisit sebagai mm/dd/yyyy.
+ let m=str.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})(?:[ T].*)?$/);
  if(m){
    const month=Number(m[1]),day=Number(m[2]),year=Number(m[3]);
    const d=new Date(year,month-1,day);
    return d.getFullYear()===year&&d.getMonth()===month-1&&d.getDate()===day?d:null;
  }
-
- // Internal dashboard keys use yyyy-mm-dd.
- m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:[ T].*)?$/);
+ // Key internal dashboard yyyy-mm-dd tidak dinormalisasi ulang.
+ m=str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:[ T].*)?$/);
  if(m){
    const year=Number(m[1]),month=Number(m[2]),day=Number(m[3]);
    const d=new Date(year,month-1,day);
@@ -224,7 +224,7 @@ function parseWorkbook(buf,name){
  });
  if(!rows.length) throw new Error('Tidak ditemukan sheet operasional dengan format yang sesuai.');
  setupFilters();render();
- $('notice').className='notice';$('notice').innerHTML=`✅ Data aktif: <b>${escapeHtml(name)}</b> • ${operationalSheets.length} sheet operasional: ${operationalSheets.map(escapeHtml).join(', ')}.`;
+ $('notice').className='notice';$('notice').innerHTML=`✅ Data aktif: <b>${escapeHtml(name)}</b> • ${operationalSheets.length} sheet operasional • format sumber <b>mm/dd/yyyy</b> • bulan laporan: <b>Juli</b>.`;
  $('meta').textContent=`${rows.length} checker records • periode ${dateRange(rows)} • diperbarui ${new Date().toLocaleString('id-ID')}`;
 }
 function dateRange(data){const ds=data.map(r=>excelDate(r[COL.checker])).filter(Boolean).sort((a,b)=>a-b);return ds.length?`${fmtDate(ds[0])} – ${fmtDate(ds.at(-1))}`:'-'}

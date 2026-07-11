@@ -408,7 +408,42 @@ $('resetBtn').onclick=()=>{['processFilter','dateFilter','brandFilter','channelF
 $('saveImageBtn').addEventListener('click',saveImage);$('savePptBtn').addEventListener('click',savePpt);
 $('fileInput').addEventListener('change',async e=>{const f=e.target.files[0];if(f)try{parseWorkbook(await f.arrayBuffer(),f.name)}catch(err){showError(err.message)}});
 function showError(msg){$('notice').className='notice error';$('notice').innerHTML=`⚠️ ${escapeHtml(msg)} Gunakan tombol <b>Pilih / Update Excel</b>.`}
-(async()=>{for(const file of DEFAULT_FILES){try{const res=await fetch(encodeURI(file)+'?v='+Date.now());if(!res.ok)continue;parseWorkbook(await res.arrayBuffer(),file);return}catch(e){}}showError('Excel otomatis belum ditemukan di folder yang sama.');})();
+(async () => {
+  const errors = [];
+
+  for (const file of DEFAULT_FILES) {
+    try {
+      const url = './' + encodeURIComponent(file) + '?v=' + Date.now();
+
+      const res = await fetch(url, {
+        method: 'GET',
+        cache: 'no-store'
+      });
+
+      if (!res.ok) {
+        errors.push(`${file}: HTTP ${res.status}`);
+        continue;
+      }
+
+      const buffer = await res.arrayBuffer();
+
+      if (buffer.byteLength < 1000) {
+        throw new Error(`Ukuran file terlalu kecil: ${buffer.byteLength} bytes`);
+      }
+
+      parseWorkbook(buffer, file);
+      return;
+
+    } catch (err) {
+      console.error(`Gagal membaca ${file}:`, err);
+      errors.push(`${file}: ${err.message}`);
+    }
+  }
+
+  showError(
+    'Gagal membaca Excel otomatis. Detail: ' + errors.join(' | ')
+  );
+})();
 </script>
 </body>
 </html>

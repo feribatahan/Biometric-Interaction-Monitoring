@@ -16,6 +16,7 @@
     .actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end}.export-group{display:flex;gap:8px;flex-wrap:wrap}.btn,.file-label{border:1px solid var(--line);background:#fff;color:var(--text);box-shadow:0 5px 14px rgba(35,72,108,.08);padding:11px 14px;border-radius:12px;cursor:pointer;font-weight:700}.btn:hover,.file-label:hover{border-color:var(--cyan)} input[type=file]{display:none}
     .notice{padding:11px 14px;border-radius:12px;background:#eaf8fb;border:1px solid #b8e5eb;color:#176073;margin-bottom:16px;font-size:13px}.error{background:#fff0f2;border-color:#f1bac3;color:#a32d41}
     .filters{display:grid;grid-template-columns:repeat(5,minmax(150px,1fr));gap:10px;background:rgba(255,255,255,.92);box-shadow:0 8px 24px rgba(35,72,108,.07);border:1px solid var(--line);padding:14px;border-radius:16px;margin-bottom:16px}.filters select,.filters input{width:100%;background:#fff;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px}.filters label{font-size:11px;color:var(--muted);display:block;margin-bottom:6px;font-weight:700}
+    .advanced-toggle{margin-top:8px;width:100%;border:1px dashed #bfd0e1;background:#f7fbff;color:#315b7d;padding:8px 10px;border-radius:10px;cursor:pointer;font-weight:800;font-size:11px}.advanced-toggle:hover{border-color:var(--cyan);color:#087e8b}.advanced-controls{grid-column:1/-1;display:none;padding:12px 14px;border:1px solid #dce8f3;border-radius:13px;background:linear-gradient(90deg,#f7fbff,#eef7ff)}.advanced-controls.show{display:grid;grid-template-columns:minmax(220px,320px) 1fr;gap:14px;align-items:end}.advanced-note{font-size:11px;color:var(--muted);padding-bottom:10px}
     .kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:16px}.card,.panel{border:1px solid var(--line);border-radius:17px;box-shadow:0 12px 30px rgba(35,72,108,.09);position:relative;overflow:hidden}.card{padding:17px;background:#fff}.card::before{content:'';position:absolute;left:0;right:0;top:0;height:5px}.card .label{font-size:12px;color:var(--muted);font-weight:800}.card .value{font-size:31px;font-weight:850;margin:7px 0 3px}.card .hint{font-size:11px;color:var(--muted)}
     .card:nth-child(1){background:linear-gradient(145deg,#ffffff 30%,#eaf4ff)}.card:nth-child(1)::before{background:linear-gradient(90deg,#3478f6,#72a8ff)}.card:nth-child(1) .value{color:#245fcb}
     .card:nth-child(2){background:linear-gradient(145deg,#ffffff 30%,#e9fbf4)}.card:nth-child(2)::before{background:linear-gradient(90deg,#20b879,#69d8ad)}.card:nth-child(2) .value{color:#14845a}
@@ -76,12 +77,16 @@
       <option value="__BIO_BOTH__">Biometric Both Brands (IM3 & 3ID)</option>
       <option value="__SUB_BOTH__">Subscription Both Brands (IM3 & 3ID)</option>
     </select></div>
-    <div><label>CHECKER DATE</label><select id="dateFilter"><option value="">Semua tanggal</option></select></div>
+    <div><label>INTERACTION DATE</label><select id="interactionDateFilter"><option value="">Semua tanggal</option></select></div>
     <div><label>BRAND</label><select id="brandFilter"><option value="">Semua brand</option></select></div>
     <div><label>CHANNEL</label><select id="channelFilter"><option value="">Semua channel</option></select></div>
     <div><label>CATEGORY</label><select id="categoryFilter"><option value="">Info & Complaint</option><option value="Info">Info</option><option value="Complaint">Complaint</option></select></div>
     <div><label>HASIL OPS CHECK</label><select id="qaFilter"><option value="">Valid & Invalid</option><option>Valid</option><option>Invalid</option></select></div>
-    <div><label>CARI AGENT / CASE / ACTIVITY</label><input id="searchFilter" placeholder="Ketik kata kunci…" /></div>
+    <div><label>CARI AGENT / CASE / ACTIVITY</label><input id="searchFilter" placeholder="Ketik kata kunci…" /><button type="button" class="advanced-toggle" id="advancedToggle">⚙ Advanced Filter</button></div>
+    <div class="advanced-controls" id="advancedControls">
+      <div><label>CHECKER DATE</label><select id="checkerDateFilter"><option value="">Semua tanggal</option></select></div>
+      <div class="advanced-note">Gunakan filter ini bila ingin menganalisis tanggal proses pengecekan. Secara default dashboard memakai Interaction Date.</div>
+    </div>
   </div>
 
   <section class="executive-strip">
@@ -111,7 +116,7 @@
     <div class="panel"><h3>Info vs Complaint</h3><div class="chartbox"><canvas id="categoryChart"></canvas></div></div>
     <div class="panel"><h3>Volume per Channel</h3><div class="chartbox"><canvas id="channelChart"></canvas></div></div>
     <div class="panel"><div class="panel-head"><h3>Invalid berdasarkan Channel</h3><span class="panel-note">Jumlah & kontribusi invalid</span></div><div class="chartbox"><canvas id="invalidChannelChart"></canvas></div></div>
-    <div class="panel wide"><h3>Trend Checker Harian</h3><div class="chartbox"><canvas id="trendChart"></canvas></div></div>
+    <div class="panel wide"><div class="panel-head"><h3>Trend Validation Rate Harian</h3><span class="panel-note">Valid ÷ (Valid + Invalid) • target 92%</span></div><div class="chartbox"><canvas id="trendChart"></canvas></div></div>
     <div class="panel"><h3>Top Invalid Remark</h3><div class="chartbox"><canvas id="remarkChart"></canvas></div></div>
     <div class="panel wide"><h3>Top Activity Code</h3><div class="chartbox"><canvas id="activityChart"></canvas></div></div>
     <div class="panel"><div class="panel-head"><h3>Activity Code Directory</h3><span class="panel-note" id="activityCountLabel">0 code</span></div><div class="activity-list" id="activityList"><div class="activity-row">Menunggu data…</div></div></div>
@@ -157,45 +162,43 @@ function mapHeader(h){
 }
 function normQA(v){const s=clean(v).toLowerCase();return s==='valid'?'Valid':s==='invalid'?'Invalid':clean(v)}
 function normCategory(v){const s=clean(v).toLowerCase();if(s.includes('complaint'))return 'Complaint';if(s.includes('info'))return 'Info';return clean(v)}
-// Tanggal sumber SharePoint menggunakan format mm/dd/yyyy.
-// Untuk laporan ini, angka pertama adalah bulan 07 (Juli).
-// File hasil download dapat menyimpan 07/09 sebagai 9 Juli ATAU 7 September,
-// tergantung locale Excel. Karena itu normalisasi dilakukan secara selektif:
-// - Jika nilai internal sudah bulan Juli, pertahankan.
-// - Jika tanggal internal adalah tanggal 7 pada bulan lain, tukar menjadi hari pada bulan Juli.
-const SOURCE_MONTH=7;
+// Format sumber SharePoint adalah mm/dd/yyyy dan seluruh laporan ini berada di bulan Juli.
+// File hasil download dapat menyimpan 07/08 sebagai Date internal 7 Agustus.
+// Karena itu Date internal dinormalisasi kembali: 7 Agustus -> 8 Juli, 7 November -> 11 Juli.
+const REPORT_MONTH=7;
 function excelDate(v){
- const normalizeParts=(year,month,day,hour=0,minute=0,second=0)=>{
-   if(month===SOURCE_MONTH){
-     return new Date(year,SOURCE_MONTH-1,day,hour,minute,second);
-   }
-   if(day===SOURCE_MONTH && month>=1 && month<=12){
-     return new Date(year,SOURCE_MONTH-1,month,hour,minute,second);
-   }
-   return new Date(year,month-1,day,hour,minute,second);
+ const normalize=(year,month,day,hour=0,minute=0,second=0)=>{
+   // Sudah benar sebagai tanggal Juli.
+   if(month===REPORT_MONTH) return new Date(year,REPORT_MONTH-1,day,hour,minute,second);
+   // Hasil salah interpretasi locale: mm/dd 07/x menjadi internal x/07.
+   if(day===REPORT_MONTH && month>=1 && month<=12) return new Date(year,REPORT_MONTH-1,month,hour,minute,second);
+   // Untuk laporan ini, tanggal lain tetap dikunci ke Juli agar konsisten dengan sumber.
+   return new Date(year,REPORT_MONTH-1,day,hour,minute,second);
  };
  if(v instanceof Date&&!isNaN(v)){
-   return normalizeParts(v.getFullYear(),v.getMonth()+1,v.getDate(),v.getHours(),v.getMinutes(),v.getSeconds());
+   return normalize(v.getFullYear(),v.getMonth()+1,v.getDate(),v.getHours(),v.getMinutes(),v.getSeconds());
  }
  if(typeof v==='number'){
    const x=XLSX.SSF.parse_date_code(v);
-   return x?normalizeParts(x.y,x.m,x.d,x.H||0,x.M||0,Math.floor(x.S||0)):null;
+   return x?normalize(x.y,x.m,x.d,x.H||0,x.M||0,Math.floor(x.S||0)):null;
  }
  const str=clean(v);
  if(!str)return null;
- // Teks yang berasal dari SharePoint dibaca eksplisit sebagai mm/dd/yyyy.
+ // Teks sumber langsung: mm/dd/yyyy
  let m=str.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})(?:[ T].*)?$/);
  if(m){
    const month=Number(m[1]),day=Number(m[2]),year=Number(m[3]);
-   const d=new Date(year,month-1,day);
-   return d.getFullYear()===year&&d.getMonth()===month-1&&d.getDate()===day?d:null;
+   // Jika teks memang sumber mm/dd, bulan 07 dan angka kedua adalah hari.
+   if(month===REPORT_MONTH) return new Date(year,REPORT_MONTH-1,day);
+   // Bila teks berasal dari hasil download yang terbalik, kembalikan ke Juli.
+   if(day===REPORT_MONTH) return new Date(year,REPORT_MONTH-1,month);
+   return new Date(year,REPORT_MONTH-1,day);
  }
- // Key internal dashboard yyyy-mm-dd tidak dinormalisasi ulang.
+ // Key internal dashboard yyyy-mm-dd.
  m=str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:[ T].*)?$/);
  if(m){
    const year=Number(m[1]),month=Number(m[2]),day=Number(m[3]);
-   const d=new Date(year,month-1,day);
-   return d.getFullYear()===year&&d.getMonth()===month-1&&d.getDate()===day?d:null;
+   return normalize(year,month,day);
  }
  return null;
 }
@@ -224,17 +227,18 @@ function parseWorkbook(buf,name){
  });
  if(!rows.length) throw new Error('Tidak ditemukan sheet operasional dengan format yang sesuai.');
  setupFilters();render();
- $('notice').className='notice';$('notice').innerHTML=`✅ Data aktif: <b>${escapeHtml(name)}</b> • ${operationalSheets.length} sheet operasional • format sumber <b>mm/dd/yyyy</b> • bulan laporan: <b>Juli</b>.`;
- $('meta').textContent=`${rows.length} checker records • periode ${dateRange(rows)} • diperbarui ${new Date().toLocaleString('id-ID')}`;
+ $('notice').className='notice';$('notice').innerHTML=`✅ <b>Data Source:</b> ${escapeHtml(name)} &nbsp;•&nbsp; <b>Reporting Period:</b> ${dateRange(rows)} &nbsp;•&nbsp; <b>Last Refresh:</b> ${new Date().toLocaleString('id-ID')}`;
+ $('meta').textContent=`${rows.length} checker records • periode interaksi ${dateRange(rows)} • diperbarui ${new Date().toLocaleString('id-ID')}`;
 }
-function dateRange(data){const ds=data.map(r=>excelDate(r[COL.checker])).filter(Boolean).sort((a,b)=>a-b);return ds.length?`${fmtDate(ds[0])} – ${fmtDate(ds.at(-1))}`:'-'}
-function unique(field){return [...new Set(rows.map(r=>field===COL.checker?keyDate(r[field]):clean(r[field])).filter(Boolean))].sort()}
-function fillSelect(id,vals){const el=$(id),first=el.options[0].outerHTML;el.innerHTML=first+vals.map(v=>`<option value="${escapeHtml(v)}">${id==='dateFilter'?fmtDate(v):escapeHtml(v)}</option>`).join('')}
+function dateRange(data){const ds=data.map(r=>excelDate(r[COL.interaction])).filter(Boolean).sort((a,b)=>a-b);return ds.length?`${fmtDate(ds[0])} – ${fmtDate(ds.at(-1))}`:'-'}
+function unique(field){return [...new Set(rows.map(r=>(field===COL.checker||field===COL.interaction)?keyDate(r[field]):clean(r[field])).filter(Boolean))].sort()}
+function fillSelect(id,vals){const el=$(id),first=el.options[0].outerHTML;el.innerHTML=first+vals.map(v=>`<option value="${escapeHtml(v)}">${(id==='interactionDateFilter'||id==='checkerDateFilter')?fmtDate(v):escapeHtml(v)}</option>`).join('')}
 function setupFilters(){
  const processEl=$('processFilter');
  const fixed=`<option value="">Semua process</option><option value="__BIO_BOTH__">Biometric Both Brands (IM3 & 3ID)</option><option value="__SUB_BOTH__">Subscription Both Brands (IM3 & 3ID)</option>`;
  processEl.innerHTML=fixed+operationalSheets.map(v=>`<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join('');
- fillSelect('dateFilter',unique(COL.checker));
+ fillSelect('interactionDateFilter',unique(COL.interaction));
+ fillSelect('checkerDateFilter',unique(COL.checker));
  fillSelect('brandFilter',unique(COL.brand));
  fillSelect('channelFilter',unique(COL.channel));
 }
@@ -249,7 +253,8 @@ function filtered(){
  const q=$('searchFilter').value.toLowerCase();
  return rows.filter(r=>
   processMatches(r.Process,$('processFilter').value)&&
-  (!$('dateFilter').value||keyDate(r[COL.checker])===$('dateFilter').value)&&
+  (!$('interactionDateFilter').value||keyDate(r[COL.interaction])===$('interactionDateFilter').value)&&
+  (!$('checkerDateFilter').value||keyDate(r[COL.checker])===$('checkerDateFilter').value)&&
   (!$('brandFilter').value||clean(r[COL.brand])===$('brandFilter').value)&&
   (!$('channelFilter').value||clean(r[COL.channel])===$('channelFilter').value)&&
   (!$('categoryFilter').value||normCategory(r[COL.category])===$('categoryFilter').value)&&
@@ -258,7 +263,7 @@ function filtered(){
  )
 }
 function group(data,field,qa){
- const o={};data.forEach(r=>{const k=field===COL.checker?keyDate(r[field]):clean(r[field])||'(Kosong)';if(!qa||normQA(r[COL.qa])===qa)o[k]=(o[k]||0)+1});return o
+ const o={};data.forEach(r=>{const k=(field===COL.checker||field===COL.interaction)?keyDate(r[field]):clean(r[field])||'(Kosong)';if(!qa||normQA(r[COL.qa])===qa)o[k]=(o[k]||0)+1});return o
 }
 function render(){
  const d=filtered();
@@ -281,7 +286,7 @@ function render(){
  const ch=Object.entries(group(d,COL.channel)).sort((a,b)=>b[1]-a[1]);
  draw('channelChart','bar',ch.map(x=>x[0]),ch.map(x=>x[1]),'#4d8dff',true);
  invalidChannelChart(d);
- const dates=[...new Set(d.map(r=>keyDate(r[COL.checker])).filter(Boolean))].sort(),vg=group(d,COL.checker,'Valid'),ig=group(d,COL.checker,'Invalid');
+ const dates=[...new Set(d.map(r=>keyDate(r[COL.interaction])).filter(Boolean))].sort(),vg=group(d,COL.interaction,'Valid'),ig=group(d,COL.interaction,'Invalid');
  lineChart(dates,vg,ig);
  const remarks=Object.entries(group(d.filter(r=>normQA(r[COL.qa])==='Invalid'),COL.remark)).sort((a,b)=>b[1]-a[1]).slice(0,8);
  draw('remarkChart','bar',remarks.map(x=>shorten(x[0],44)),remarks.map(x=>x[1]),'#8b6ee8',true);
@@ -381,7 +386,56 @@ function brandPerformance(id,d){
  opts.layout={padding:{top:20,right:52,left:8,bottom:6}};opts.scales={x:{min:0,max:100,ticks:{color:'#667b90',callback:v=>v+'%'},grid:{color:'rgba(102,123,144,.12)'}},y:{ticks:{color:'#17324d',font:{weight:'700'}},grid:{display:false}}};opts.plugins.legend={display:false};opts.plugins.datalabels={color:'#17324d',anchor:'end',align:'right',offset:5,clamp:true,font:{weight:'900',size:11},formatter:(v,ctx)=>`${v.toFixed(1)}% (${stats[ctx.dataIndex].valid}/${stats[ctx.dataIndex].evaluated})`};
  charts[id]=new Chart($(id),{type:'bar',data:{labels:stats.map(s=>s.name),datasets:[{data:stats.map(s=>s.rate),backgroundColor:colors,borderRadius:9,barThickness:24}]},options:opts,plugins:[targetPlugin]});
 }
-function lineChart(labels,a,b){charts.trendChart?.destroy();const opts=baseOptions();opts.plugins.datalabels={color:'#17324d',font:{weight:'bold',size:10},anchor:'end',align:'top',offset:4,clamp:true,formatter:v=>Number(v)>0?v:''};charts.trendChart=new Chart($('trendChart'),{type:'line',data:{labels:labels.map(fmtDate),datasets:[{label:'Valid',data:labels.map(k=>a[k]||0),borderColor:'#20b879',backgroundColor:'rgba(32,184,121,.15)',pointRadius:4,fill:true,tension:.35},{label:'Invalid',data:labels.map(k=>b[k]||0),borderColor:'#ef5b70',backgroundColor:'rgba(239,91,112,.10)',pointRadius:4,fill:true,tension:.35}]},options:opts})}
+function lineChart(labels,a,b){
+ charts.trendChart?.destroy();
+ const stats=labels.map(k=>{
+   const valid=Number(a[k]||0),invalid=Number(b[k]||0),total=valid+invalid;
+   return {key:k,valid,invalid,total,rate:total?valid/total*100:null};
+ });
+ const rates=stats.map(s=>s.rate);
+ const pointColors=stats.map(s=>s.rate===null?'#94a3b8':s.rate>=TARGET_RATE?'#20b879':s.rate>=90?'#f2ad32':'#ef5b70');
+ const targetPlugin={
+   id:'dailyTargetLine',
+   afterDraw(chart){
+     const {ctx,scales:{y},chartArea:{left,right}}=chart;
+     const py=y.getPixelForValue(TARGET_RATE);
+     ctx.save();ctx.setLineDash([7,5]);ctx.strokeStyle='#f2ad32';ctx.lineWidth=2;
+     ctx.beginPath();ctx.moveTo(left,py);ctx.lineTo(right,py);ctx.stroke();ctx.setLineDash([]);
+     ctx.fillStyle='#a76b00';ctx.font='700 10px Arial';ctx.fillText(`Target ${TARGET_RATE}%`,left+6,py-7);ctx.restore();
+   }
+ };
+ const opts={
+   responsive:true,maintainAspectRatio:false,
+   layout:{padding:{top:28,right:20,left:8,bottom:6}},
+   plugins:{
+     legend:{display:false},
+     datalabels:{
+       color:'#17324d',font:{weight:'900',size:11},anchor:'end',align:'top',offset:5,clamp:true,
+       formatter:v=>v===null?'':`${v.toFixed(1)}%`
+     },
+     tooltip:{callbacks:{
+       title:items=>items[0]?.label||'',
+       label:ctx=>{
+         const s=stats[ctx.dataIndex];
+         return [`Validation Rate: ${s.rate===null?'N/A':s.rate.toFixed(1)+'%'}`,`Valid: ${s.valid}`,`Invalid: ${s.invalid}`,`Total Checked: ${s.total}`];
+       }
+     }}
+   },
+   scales:{
+     x:{ticks:{color:'#667b90'},grid:{color:'rgba(102,123,144,.12)'}},
+     y:{min:0,max:100,ticks:{color:'#667b90',callback:v=>v+'%'},grid:{color:'rgba(102,123,144,.12)'}}
+   }
+ };
+ charts.trendChart=new Chart($('trendChart'),{
+   type:'line',
+   data:{labels:labels.map(fmtDate),datasets:[{
+     label:'Validation Rate',data:rates,borderColor:'#3478f6',backgroundColor:'rgba(52,120,246,.13)',
+     pointBackgroundColor:pointColors,pointBorderColor:'#ffffff',pointBorderWidth:2,pointRadius:6,pointHoverRadius:8,
+     borderWidth:3,fill:true,tension:.32,spanGaps:false
+   }]},
+   options:opts,plugins:[targetPlugin]
+ });
+}
 // Mask 4 digit terakhir MSISDN untuk menjaga privasi pelanggan.
 // Data asli di Excel tidak diubah; masking hanya berlaku pada tampilan dashboard.
 function maskMsisdn(value){
@@ -402,48 +456,14 @@ async function savePpt(){setExportState(true,'Menyiapkan PowerPoint…');try{con
 function setExportState(active,msg){$('saveImageBtn').disabled=active;$('savePptBtn').disabled=active;$('exportNote').textContent=msg||'';if(!active&&msg)setTimeout(()=>{if($('exportNote').textContent===msg)$('exportNote').textContent=''},3500)}
 function shorten(s,n){s=clean(s);return s.length>n?s.slice(0,n-1)+'…':s}
 function escapeHtml(s){return String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
-['processFilter','dateFilter','brandFilter','channelFilter','categoryFilter','qaFilter'].forEach(id=>$(id).addEventListener('change',render));
+['processFilter','interactionDateFilter','checkerDateFilter','brandFilter','channelFilter','categoryFilter','qaFilter'].forEach(id=>$(id).addEventListener('change',render));
 $('searchFilter').addEventListener('input',render);
-$('resetBtn').onclick=()=>{['processFilter','dateFilter','brandFilter','channelFilter','categoryFilter','qaFilter'].forEach(id=>$(id).value='');$('searchFilter').value='';render()};
+$('advancedToggle').addEventListener('click',()=>{const panel=$('advancedControls');const open=panel.classList.toggle('show');$('advancedToggle').textContent=open?'✕ Tutup Advanced Filter':'⚙ Advanced Filter';});
+$('resetBtn').onclick=()=>{['processFilter','interactionDateFilter','checkerDateFilter','brandFilter','channelFilter','categoryFilter','qaFilter'].forEach(id=>$(id).value='');$('searchFilter').value='';$('advancedControls').classList.remove('show');$('advancedToggle').textContent='⚙ Advanced Filter';render()};
 $('saveImageBtn').addEventListener('click',saveImage);$('savePptBtn').addEventListener('click',savePpt);
 $('fileInput').addEventListener('change',async e=>{const f=e.target.files[0];if(f)try{parseWorkbook(await f.arrayBuffer(),f.name)}catch(err){showError(err.message)}});
 function showError(msg){$('notice').className='notice error';$('notice').innerHTML=`⚠️ ${escapeHtml(msg)} Gunakan tombol <b>Pilih / Update Excel</b>.`}
-(async () => {
-  const errors = [];
-
-  for (const file of DEFAULT_FILES) {
-    try {
-      const url = './' + encodeURIComponent(file) + '?v=' + Date.now();
-
-      const res = await fetch(url, {
-        method: 'GET',
-        cache: 'no-store'
-      });
-
-      if (!res.ok) {
-        errors.push(`${file}: HTTP ${res.status}`);
-        continue;
-      }
-
-      const buffer = await res.arrayBuffer();
-
-      if (buffer.byteLength < 1000) {
-        throw new Error(`Ukuran file terlalu kecil: ${buffer.byteLength} bytes`);
-      }
-
-      parseWorkbook(buffer, file);
-      return;
-
-    } catch (err) {
-      console.error(`Gagal membaca ${file}:`, err);
-      errors.push(`${file}: ${err.message}`);
-    }
-  }
-
-  showError(
-    'Gagal membaca Excel otomatis. Detail: ' + errors.join(' | ')
-  );
-})();
+(async()=>{for(const file of DEFAULT_FILES){try{const res=await fetch(encodeURI(file)+'?v='+Date.now());if(!res.ok)continue;parseWorkbook(await res.arrayBuffer(),file);return}catch(e){}}showError('Excel otomatis belum ditemukan di folder yang sama.');})();
 </script>
 </body>
 </html>
